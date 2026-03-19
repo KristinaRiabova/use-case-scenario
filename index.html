@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Use Case Scenario — Complete a Quest</title>
+  <style>
+    :root {
+      --bg: #040704;
+      --bg2: #091109;
+      --panel: #0b130c;
+      --panel2: #101a11;
+      --line: rgba(106, 255, 143, 0.16);
+      --line-strong: rgba(106, 255, 143, 0.34);
+      --text: #ecfff0;
+      --muted: #9fbeaa;
+      --green: #63ff91;
+      --green2: #1ed760;
+      --green3: #0c7e34;
+      --shadow: 0 18px 50px rgba(0,0,0,0.45);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(99,255,145,0.08), transparent 24%),
+        radial-gradient(circle at top left, rgba(30,215,96,0.06), transparent 20%),
+        linear-gradient(180deg, #030503 0%, #081008 45%, #040704 100%);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.02),
+        rgba(255,255,255,0.02) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+      opacity: 0.12;
+    }
+
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background: linear-gradient(180deg, rgba(11,19,12,0.96), rgba(7,11,7,0.96));
+      box-shadow: var(--shadow), inset 0 0 0 1px rgba(99,255,145,0.05);
+      padding: 34px;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -60px;
+      bottom: -90px;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(99,255,145,0.15), transparent 65%);
+      filter: blur(12px);
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: rgba(99,255,145,0.07);
+      color: #d8ffe3;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 12px var(--green);
+    }
+
+    .hero h1 {
+      margin: 18px 0 12px;
+      font-size: clamp(34px, 6vw, 64px);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 780px;
+      font-size: 17px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(130px, 1fr));
+      gap: 12px;
+      min-width: 320px;
+    }
+
+    .hud-box {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(99,255,145,0.035);
+    }
+
+    .hud-box small {
+      display: block;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    .hud-box strong {
+      color: var(--text);
+      font-size: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(12,19,13,0.97), rgba(8,13,9,0.97));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99,255,145,0.28), transparent);
+    }
+
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+    .span-7 { grid-column: span 7; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .mini {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      background: var(--green);
+      box-shadow: 0 0 10px rgba(99,255,145,0.7);
+    }
+
+    .stack, .terminal-box {
+      display: grid;
+      gap: 12px;
+    }
+
+    .row {
+      border: 1px solid rgba(99,255,145,0.12);
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(99,255,145,0.03);
+    }
+
+    .label {
+      color: #c6ffd6;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 8px;
+    }
+
+    .value {
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tag {
+      border: 1px solid rgba(99,255,145,0.2);
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: rgba(99,255,145,0.06);
+      color: #ddffe7;
+      font-size: 14px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 46px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(99,255,145,0.13);
+      background: linear-gradient(180deg, rgba(99,255,145,0.04), rgba(99,255,145,0.02));
+    }
+
+    .num {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, #0d2311, #112d17);
+      border: 1px solid rgba(99,255,145,0.24);
+      color: var(--green);
+      font-weight: 800;
+      box-shadow: inset 0 0 18px rgba(99,255,145,0.08);
+    }
+
+    .timeline-item p {
+      margin: 0;
+      line-height: 1.72;
+    }
+
+    .matrix {
+      display: grid;
+      gap: 12px;
+    }
+
+    .matrix-item {
+      border: 1px solid rgba(99,255,145,0.14);
+      border-radius: 18px;
+      overflow: hidden;
+      background: rgba(99,255,145,0.03);
+    }
+
+    .matrix-btn {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      padding: 16px 18px;
+      text-align: left;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .matrix-btn span:last-child {
+      color: var(--green);
+      font-size: 22px;
+      transition: transform 0.2s ease;
+    }
+
+    .matrix-item.open .matrix-btn span:last-child {
+      transform: rotate(45deg);
+    }
+
+    .matrix-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .matrix-inner {
+      padding: 0 18px 18px;
+      color: var(--muted);
+      line-height: 1.72;
+    }
+
+    .status-panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .status-card {
+      border: 1px solid rgba(99,255,145,0.14);
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(99,255,145,0.03);
+    }
+
+    .status-card h3 {
+      margin: 0 0 10px;
+      font-size: 17px;
+      text-transform: uppercase;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .diagram-shell {
+      border: 1px solid rgba(99,255,145,0.14);
+      border-radius: 22px;
+      background: radial-gradient(circle at center, rgba(99,255,145,0.03), transparent 46%), #071007;
+      padding: 18px;
+    }
+
+    .diagram {
+      min-height: 470px;
+      position: relative;
+      border: 1px dashed rgba(99,255,145,0.18);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .system {
+      position: absolute;
+      left: 250px;
+      right: 140px;
+      top: 54px;
+      bottom: 54px;
+      border: 2px solid rgba(99,255,145,0.28);
+      border-radius: 26px;
+      box-shadow: inset 0 0 50px rgba(29,215,96,0.03);
+    }
+
+    .sys-title {
+      position: absolute;
+      top: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #dcffe6;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .oval {
+      position: absolute;
+      top: 170px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(460px, 56%);
+      min-height: 140px;
+      border-radius: 999px;
+      border: 2px solid rgba(99,255,145,0.3);
+      display: grid;
+      place-items: center;
+      font-size: 30px;
+      font-weight: 800;
+      text-align: center;
+      padding: 20px;
+      background: rgba(99,255,145,0.03);
+    }
+
+    .actor {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+    }
+
+    .actor.user {
+      left: 48px;
+      top: 150px;
+      width: 140px;
+    }
+
+    .actor.dbactor {
+      right: 30px;
+      top: 170px;
+      width: 110px;
+    }
+
+    .person {
+      position: relative;
+      width: 72px;
+      height: 132px;
+    }
+
+    .person::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 34px;
+      height: 34px;
+      border: 3px solid rgba(99,255,145,0.75);
+      border-radius: 50%;
+    }
+
+    .person .body {
+      position: absolute;
+      left: 50%;
+      top: 38px;
+      transform: translateX(-50%);
+      width: 3px;
+      height: 42px;
+      background: rgba(99,255,145,0.75);
+    }
+
+    .person .arms {
+      position: absolute;
+      left: 50%;
+      top: 50px;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: rgba(99,255,145,0.75);
+    }
+
+    .person .legs::before,
+    .person .legs::after {
+      content: "";
+      position: absolute;
+      top: 80px;
+      width: 3px;
+      height: 44px;
+      background: rgba(99,255,145,0.75);
+    }
+
+    .person .legs::before {
+      left: 30px;
+      transform: rotate(18deg);
+      transform-origin: top;
+    }
+
+    .person .legs::after {
+      right: 30px;
+      transform: rotate(-18deg);
+      transform-origin: top;
+    }
+
+    .dbicon {
+      width: 86px;
+      height: 110px;
+      position: relative;
+    }
+
+    .dbicon .top,
+    .dbicon .mid,
+    .dbicon .bot {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      height: 22px;
+      border: 2px solid rgba(99,255,145,0.75);
+      border-radius: 50%;
+      background: rgba(99,255,145,0.03);
+    }
+
+    .dbicon .top { top: 4px; }
+    .dbicon .mid { top: 40px; }
+    .dbicon .bot { top: 76px; }
+
+    .dbicon .sides {
+      position: absolute;
+      top: 14px;
+      bottom: 14px;
+      left: 8px;
+      right: 8px;
+      border-left: 2px solid rgba(99,255,145,0.75);
+      border-right: 2px solid rgba(99,255,145,0.75);
+    }
+
+    .conn-left,
+    .conn-right {
+      position: absolute;
+      top: 236px;
+    }
+
+    .conn-left {
+      left: 188px;
+      width: 290px;
+      height: 2px;
+      background: rgba(99,255,145,0.55);
+    }
+
+    .conn-left::after {
+      content: "";
+      position: absolute;
+      right: -1px;
+      top: -5px;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-left: 12px solid rgba(99,255,145,0.55);
+    }
+
+    .conn-right {
+      right: 128px;
+      width: 170px;
+      border-top: 2px dashed rgba(99,255,145,0.55);
+    }
+
+    .conn-right::after {
+      content: "";
+      position: absolute;
+      right: -1px;
+      top: -6px;
+      border-top: 7px solid transparent;
+      border-bottom: 7px solid transparent;
+      border-left: 12px solid rgba(99,255,145,0.55);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .btn {
+      border: 1px solid rgba(99,255,145,0.22);
+      background: linear-gradient(180deg, #0e2312, #0a180c);
+      color: #ebfff0;
+      padding: 12px 16px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      margin-top: 18px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 1024px) {
+      .span-3, .span-4, .span-5, .span-6, .span-7, .span-8 { grid-column: span 12; }
+      .status-panels { grid-template-columns: 1fr; }
+      .diagram { min-height: 760px; }
+      .system {
+        left: 28px;
+        right: 28px;
+        top: 170px;
+        bottom: 170px;
+      }
+      .oval {
+        width: calc(100% - 90px);
+        top: 310px;
+      }
+      .actor.user {
+        top: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .actor.dbactor {
+        bottom: 26px;
+        top: auto;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+      }
+      .conn-left {
+        left: 50%;
+        top: 170px;
+        transform: translateX(-50%);
+        width: 2px;
+        height: 120px;
+      }
+      .conn-left::after {
+        right: auto;
+        left: -5px;
+        top: auto;
+        bottom: -1px;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 12px solid rgba(99,255,145,0.55);
+        border-bottom: 0;
+      }
+      .conn-right {
+        left: 50%;
+        right: auto;
+        top: auto;
+        bottom: 150px;
+        transform: translateX(-50%);
+        width: 2px;
+        height: 130px;
+        border-top: 0;
+        border-left: 2px dashed rgba(99,255,145,0.55);
+      }
+      .conn-right::after {
+        right: auto;
+        left: -6px;
+        top: auto;
+        bottom: -1px;
+        border-left: 7px solid transparent;
+        border-right: 7px solid transparent;
+        border-top: 12px solid rgba(99,255,145,0.55);
+        border-bottom: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="topbar">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> Game Use Case Interface</div>
+          <h1>Complete a Quest</h1>
+          <p>
+            <strong>Game Tracker and Quest Manager</strong> assignment.
+          </p>
+        </div>
+        <div class="hud">
+          <div class="hud-box">
+            <small>Product</small>
+            <strong>Game Tracker</strong>
+          </div>
+          <div class="hud-box">
+            <small>Actor</small>
+            <strong>Registered User</strong>
+          </div>
+          <div class="hud-box">
+            <small>Status</small>
+            <strong>Ready</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card span-4">
+        <div class="section-title"><span class="mini"></span><h2>Product</h2></div>
+        <div class="stack">
+          <div class="row">
+            <div class="label">Name</div>
+            <div class="value">Game Tracker and Quest Manager</div>
+          </div>
+          <div class="row">
+            <div class="label">Description</div>
+            <div class="value">This is an application where users can add games to their library, track progress and complete quests in games.</div>
+          </div>
+          <div class="row">
+            <div class="label">Short Description</div>
+            <div class="value">Game Tracker and Quest Manager is an app for players who want to organize their games and track quests. It helps users see their progress and manage their gaming activity in one place.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card span-4">
+        <div class="section-title"><span class="mini"></span><h2>Use Case</h2></div>
+        <div class="stack">
+          <div class="row">
+            <div class="label">Use Case Title</div>
+            <div class="value">Complete a Quest</div>
+          </div>
+          <div class="row">
+            <div class="label">Goal</div>
+            <div class="value">The user wants to mark a quest in a game as completed and update game progress.</div>
+          </div>
+          <div class="row">
+            <div class="label">Trigger</div>
+            <div class="value">The user opens the game page and chooses a quest to complete.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card span-4">
+        <div class="section-title"><span class="mini"></span><h2>Actors</h2></div>
+        <div class="stack">
+          <div class="row">
+            <div class="label">Primary Actor</div>
+            <div class="value">Registered User</div>
+          </div>
+          <div class="row">
+            <div class="label">Secondary Actors</div>
+            <div class="tag-list">
+              <span class="tag">System</span>
+              <span class="tag">Database</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card span-5">
+        <div class="section-title"><span class="mini"></span><h2>Preconditions</h2></div>
+        <ul>
+          <li>The user has an account and is logged in.</li>
+          <li>The game is already added to the user’s library.</li>
+          <li>The selected game has at least one quest.</li>
+          <li>The quest is not completed yet.</li>
+        </ul>
+      </section>
+
+      <section class="card span-7">
+        <div class="section-title"><span class="mini"></span><h2>Postconditions</h2></div>
+        <div class="status-panels">
+          <div class="status-card">
+            <h3>Success</h3>
+            <ul>
+              <li>The quest is marked as completed.</li>
+              <li>The game progress is updated.</li>
+              <li>The new information is saved in the database.</li>
+            </ul>
+          </div>
+          <div class="status-card">
+            <h3>Failure</h3>
+            <ul>
+              <li>The quest remains incomplete.</li>
+              <li>No progress changes are saved.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="card span-8">
+        <div class="section-title"><span class="mini"></span><h2>Main Success Scenario</h2></div>
+        <div class="timeline">
+          <div class="timeline-item"><div class="num">1</div><p>The user logs into the application.</p></div>
+          <div class="timeline-item"><div class="num">2</div><p>The user opens their game library.</p></div>
+          <div class="timeline-item"><div class="num">3</div><p>The user selects a game from the list.</p></div>
+          <div class="timeline-item"><div class="num">4</div><p>The system shows the game details and the list of quests.</p></div>
+          <div class="timeline-item"><div class="num">5</div><p>The user finds a quest and clicks the “Complete Quest” button.</p></div>
+          <div class="timeline-item"><div class="num">6</div><p>The system checks if the quest belongs to this game and if it is still active.</p></div>
+          <div class="timeline-item"><div class="num">7</div><p>The system marks the quest as completed.</p></div>
+          <div class="timeline-item"><div class="num">8</div><p>The system updates the game progress percentage.</p></div>
+          <div class="timeline-item"><div class="num">9</div><p>The system saves the new data in the database.</p></div>
+          <div class="timeline-item"><div class="num">10</div><p>The system shows a message: “Quest completed successfully.”</p></div>
+        </div>
+      </section>
+
+      <section class="card span-4">
+        <div class="section-title"><span class="mini"></span><h2>Alternative Scenarios</h2></div>
+        <div class="matrix" id="accordion">
+          <div class="matrix-item open">
+            <button class="matrix-btn"><span>Quest is already completed</span><span>+</span></button>
+            <div class="matrix-content" style="max-height: 260px;">
+              <div class="matrix-inner">
+                1. The user selects a quest and clicks Complete Quest.<br>
+                2. The system checks the quest status.<br>
+                3. The system finds that the quest is already completed.<br>
+                4. The system shows a message: This quest is already completed.<br>
+                5. The use case ends.
+              </div>
+            </div>
+          </div>
+          <div class="matrix-item">
+            <button class="matrix-btn"><span>User is not logged in</span><span>+</span></button>
+            <div class="matrix-content">
+              <div class="matrix-inner">
+                1. The user tries to open the game page.<br>
+                2. The system checks the user session.<br>
+                3. The system sees that the user is not logged in.<br>
+                4. The system redirects the user to the login page.<br>
+                5. The use case ends.
+              </div>
+            </div>
+          </div>
+          <div class="matrix-item">
+            <button class="matrix-btn"><span>Quest does not exist</span><span>+</span></button>
+            <div class="matrix-content">
+              <div class="matrix-inner">
+                1. The user selects a quest.<br>
+                2. The system checks the quest ID.<br>
+                3. The system cannot find the quest in the database.<br>
+                4. The system shows a message: Quest not found.<br>
+                5. The use case ends.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card span-12">
+        <div class="section-title"><span class="mini"></span><h2>Use Case Diagram</h2></div>
+        <div class="diagram-shell">
+          <div class="diagram">
+            <div class="system"></div>
+            <div class="sys-title">Game Tracker System</div>
+            <div class="oval">Complete a Quest</div>
+
+            <div class="actor user">
+              <div class="person">
+                <div class="body"></div>
+                <div class="arms"></div>
+                <div class="legs"></div>
+              </div>
+              <div><strong>Registered User</strong><br><span style="color: var(--muted);">Primary Actor</span></div>
+            </div>
+
+            <div class="actor dbactor">
+              <div class="dbicon">
+                <div class="sides"></div>
+                <div class="top"></div>
+                <div class="mid"></div>
+                <div class="bot"></div>
+              </div>
+              <div><strong>Database</strong><br><span style="color: var(--muted);">Secondary Actor</span></div>
+            </div>
+
+            <div class="conn-left"></div>
+            <div class="conn-right"></div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn" id="printBtn">Print / Save PDF</button>
+          <button class="btn" id="glowBtn">Switch Accent</button>
+        </div>
+      </section>
+
+      <section class="card span-6">
+        <div class="section-title"><span class="mini"></span><h2>Functional Requirements</h2></div>
+        <ul>
+          <li>The system must allow a logged-in user to view their game library.</li>
+          <li>The system must show quests for each game.</li>
+          <li>The system must allow the user to mark a quest as completed.</li>
+          <li>The system must validate quest status before updating it.</li>
+          <li>The system must update game progress after quest completion.</li>
+          <li>The system must save all changes in the database.</li>
+          <li>The system must show error messages when an action cannot be completed.</li>
+        </ul>
+      </section>
+
+      <section class="card span-6">
+        <div class="section-title"><span class="mini"></span><h2>AI Usage</h2></div>
+        <div class="terminal-box">
+          <div class="row">
+            <div class="label">AI tool used</div>
+            <div class="value">ChatGPT</div>
+          </div>
+          <div class="row">
+            <div class="label">Prompt used</div>
+            <div class="value">“Help me structure a use case scenario for a game application called Game Tracker and Quest Manager. The use case is Complete a Quest.”</div>
+          </div>
+          <div class="row">
+            <div class="label">Generated by AI</div>
+            <div class="value">Give an idea how to better do this assignment and some structure, organization of sections, and suggestions for a clearer layout, generate diagram,some text to website.</div>
+          </div>
+          <div class="row">
+            <div class="label">Edited by me</div>
+            <div class="value">Adjusted the product description, refined steps in the main scenario, and added or corrected details in alternative scenarios.</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </div>
+
+  <script>
+    const items = document.querySelectorAll('.matrix-item');
+    items.forEach(item => {
+      const btn = item.querySelector('.matrix-btn');
+      const content = item.querySelector('.matrix-content');
+      btn.addEventListener('click', () => {
+        const open = item.classList.contains('open');
+        items.forEach(el => {
+          el.classList.remove('open');
+          el.querySelector('.matrix-content').style.maxHeight = null;
+        });
+        if (!open) {
+          item.classList.add('open');
+          content.style.maxHeight = content.scrollHeight + 'px';
+        }
+      });
+    });
+
+    document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+    let alt = false;
+    document.getElementById('glowBtn').addEventListener('click', () => {
+      alt = !alt;
+      const root = document.documentElement;
+      root.style.setProperty('--green', alt ? '#8dff6a' : '#63ff91');
+      root.style.setProperty('--green2', alt ? '#59ff9a' : '#1ed760');
+      root.style.setProperty('--green3', alt ? '#4dcf57' : '#0c7e34');
+    });
+  </script>
+</body>
+</html>
