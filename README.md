@@ -5,7 +5,7 @@ A modern web-based presentation of a **Use Case Scenario** for a game tracking a
 ---
 
 ## 🌐 Live Demo
-👉 https://YOUR_USERNAME.github.io/use-case-scenario/
+👉 https://kristinariabova.github.io/use-case-scenario/
 
 ---
 
